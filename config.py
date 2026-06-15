@@ -43,7 +43,8 @@ REVISION_COUNT_THRESHOLD = 100  # Flag if document has > 100 revisions
 
 # report setting
 EXCEL_REPORT_NAME = "forensix_report.xlsx"
-INCLUDE_RAW_METADATA = False  # true to include massive raw_metadata in Excel
+INCLUDE_RAW_METADATA = True  # true to include massive raw_metadata in Excel
+FLATTEN_RAW_METADATA = True
 
 # loggin
 DEBUG_MODE = False  # true for verbose output

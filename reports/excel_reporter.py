@@ -5,12 +5,23 @@ Converts metadata results into formatted Excel workbooks
 
 import pandas as pd
 from pathlib import Path
+import json
 from openpyxl import load_workbook
 from openpyxl.styles import (
     Font, PatternFill, Alignment, Border, 
     Side
 )
 from openpyxl.utils import get_column_letter
+
+def _create_raw_metadata_sheet(results):
+    rows = []
+    for r in results:
+        raw = r.get("raw_metadata") or {}
+        rows.append({
+            "filename": r.get("filename",""),
+            "raw_metadata_json": json.dumps(raw, default=str)
+        })
+    return pd.DataFrame(rows)
 
 
 def generate_excel_report(results, output_path):
@@ -36,6 +47,7 @@ def generate_excel_report(results, output_path):
     # Ensure output directory exists
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
     
     # Create Excel writer
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
@@ -52,11 +64,16 @@ def generate_excel_report(results, output_path):
         suspicious_df = _create_suspicious_sheet(results)
         if not suspicious_df.empty:
             suspicious_df.to_excel(writer, sheet_name='Suspicious', index=False)
+
         
         # Sheet 4: GPS Data (if any)
         gps_df = _create_gps_sheet(results)
         if not gps_df.empty:
             gps_df.to_excel(writer, sheet_name='GPS Data', index=False)
+    
+    
+    raw_df = _create_raw_metadata_sheet(results)
+    raw_df.to_excel(writer, sheet_name='Raw_Metadata', index=False)
     
     # Format the workbook
     _format_workbook(output_path)
